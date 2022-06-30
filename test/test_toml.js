@@ -3,15 +3,78 @@ var fs = require('fs');
 
 var assert = require("nodeunit").assert;
 
-assert.parsesToml = function(tomlStr, expected) {
+assert.parsesToml = function(tomlStr, expected, expectedMap) {
   try {
-    var actual = toml.parse(tomlStr);
+    map = {};
+    var actual = toml.parse(tomlStr, map);
   } catch (e) {
     var errInfo = "line: " + e.line + ", column: " + e.column;
     return assert.fail("TOML parse error: " + e.message, errInfo, null, "at", assert.parsesToml);
   }
-  return assert.deepEqual(actual, expected);
+  return assert.deepEqual(actual, expected) && assert.deepEqual(map, expectedMap);
 };
+
+var tiAuditExpected = {
+  "type": "simple",
+  "name": "VMs Created",
+  "description": "This query displays information on the created VMs.\n\n#### Resulting Columns\nTeam name <br>\nName of the VM <br>\nThe date the VM was created <br>\n",
+  "notes": "Query displays useful info on created VMs per team.\n\nPotential Issues with Query:\n",
+  "parameters": [
+    "startDate",
+    "success",
+    "limit"
+  ],
+  "tags": [
+    "By Success",
+    "Top N"
+  ],
+  "query": "SELECT DISTINCT Team, VMID, Timestamp\nFROM VMCreated\nWHERE Success = 1 AND\n    {{.StartDate.Exp}} AND\n    {{.EndDate.Exp}}\nORDER BY VMCreated.Timestamp DESC\nLIMIT {{.Limit.Val}}\n",
+  "returns": [
+    {
+      "id": "team",
+      "name": "Team",
+      "type": "TeamID"
+    },
+    {
+      "id": "vm",
+      "name": "VM",
+      "type": "VMID"
+    },
+    {
+      "id": "date",
+      "name": "Created on",
+      "type": "Time"
+    }
+  ]
+}
+
+var tiAuditMap = {
+  "type": { line: 1, col: 8 },
+  "name": { line: 2, col: 8 },
+  "description": { line: 3, col: 15 },
+  "notes": { line: 11, col: 9 },
+  "parameters": { line: 17, col: 1 },
+  'parameters.0': { line: 17, col: 15 },
+  'parameters.1': { line: 17, col: 28 },
+  'parameters.2': { line: 17, col: 39 },
+  "tags": { line: 18, col: 1 },
+  'tags.0': { line: 18, col: 9 },
+  'tags.1': { line: 18, col: 23 },
+  "query": { line: 20, col: 9 },
+  "returns": { line: 30, col: 1 },
+  'returns.0': { line: 31, col: 5 },
+  'returns.1': { line: 32, col: 5 },
+  'returns.2': { line: 33, col: 5 },
+  'returns.0.id': { line: 31, col: 12 },
+  'returns.0.name': { line: 31, col: 27 },
+  'returns.0.type': { line: 31, col: 42 },
+  'returns.1.id': { line: 32, col: 12 },
+  'returns.1.name': { line: 32, col: 25 },
+  'returns.1.type': { line: 32, col: 38 },
+  'returns.2.id': { line: 33, col: 12 },
+  'returns.2.name': { line: 33, col: 27 },
+  'returns.2.type': { line: 33, col: 48 }
+}
 
 var exampleExpected = {
   title: "TOML Example",
@@ -115,6 +178,12 @@ exports.testParsesExample = function(test) {
   test.parsesToml(str, exampleExpected);
   test.done();
 };
+
+exports.testParsesTiAuditExample = function(test) {
+  var str = fs.readFileSync(__dirname + "/tiaudit_example.toml", 'utf-8')
+  test.parsesToml(str, tiAuditExpected, tiAuditMap);
+  test.done();
+}
 
 exports.testParsesHardExample = function(test) {
   var str = fs.readFileSync(__dirname + "/hard_example.toml", 'utf-8')
