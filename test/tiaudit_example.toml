@@ -1,0 +1,34 @@
+type = "simple"
+name = "VMs Created"
+description = """
+This query displays information on the created VMs.
+
+#### Resulting Columns
+Team name <br>
+Name of the VM <br>
+The date the VM was created <br>
+"""
+notes = """
+Query displays useful info on created VMs per team.
+
+Potential Issues with Query:
+"""
+
+parameters = ["startDate", "success", "limit"]
+tags = ["By Success", "Top N"]
+
+query = """
+SELECT DISTINCT Team, VMID, Timestamp
+FROM VMCreated
+WHERE Success = 1 AND
+    {{.StartDate.Exp}} AND
+    {{.EndDate.Exp}}
+ORDER BY VMCreated.Timestamp DESC
+LIMIT {{.Limit.Val}}
+"""
+
+returns = [
+    { id = "team", name = "Team", type = "TeamID"},
+    { id = "vm", name = "VM", type = "VMID"},
+    { id = "date", name = "Created on", type = "Time"}
+]
