@@ -1,3 +1,3 @@
-declare module 'toml' {
-  export function parse(input: string): any;
+declare module 'ti-toml' {
+  export function parse(input: string): Array<any>;
 }
