@@ -2,8 +2,8 @@ var parser = require('./lib/parser');
 var compiler = require('./lib/compiler');
 
 module.exports = {
-  parse: function(input, map) {
+  parse: function(input) {
     var nodes = parser.parse(input.toString());
-    return compiler.compile(nodes, map);
+    return compiler.compile(nodes);
   }
 };

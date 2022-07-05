@@ -1,3 +1,3 @@
 declare module 'toml' {
-  export function parse(input: string, map: object): any;
+  export function parse(input: string): any;
 }
