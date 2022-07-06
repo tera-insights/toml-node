@@ -5,7 +5,9 @@ var assert = require("nodeunit").assert;
 
 assert.parsesToml = function(tomlStr, expected, expectedMap) {
   try {
-    var [actual, map] = toml.parse(tomlStr);
+    map = {}
+    actual = toml.parse(tomlStr, map);
+
   } catch (e) {
     var errInfo = "line: " + e.line + ", column: " + e.column;
     return assert.fail("TOML parse error: " + e.message, errInfo, null, "at", assert.parsesToml);
