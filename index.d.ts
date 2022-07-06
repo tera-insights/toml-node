@@ -1,3 +1,4 @@
 declare module 'toml' {
-  export function parse(input: string, map: object): any;
+  export type PositionMap = { [path: string]: { line: number, col: number }};
+  export function parse(input: string, map: PositionMap): any;
 }
